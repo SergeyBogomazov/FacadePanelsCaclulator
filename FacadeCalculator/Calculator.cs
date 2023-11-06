@@ -5,7 +5,7 @@ namespace FacadeCalculator
 {
     public class Calculator : ICalculator
     {
-        public async Task<Panel[]> GetPanelsToCoverProfile(Point[] facadePoints, Size profileSize)
+        public async Task<Panel[]> GetPanelsToCoverProfile(Point[] facadePoints, Size panelSize)
         {
             // Вообще обычно в таких местах у меня используется логгер + stringBuilder для записи действий и промежточных состояний для отладки,
             // но в этот раз я не стал его проводить и сделал вывод в консоль
@@ -13,6 +13,10 @@ namespace FacadeCalculator
             if (!IsFacadeValid(facadePoints))
             {
                 throw new InvalidFacadeException();
+            }
+            if (!IsPanelValid(panelSize))
+            { 
+                throw new InvalidPanelException();
             }
 
             Console.WriteLine($"Start calculation {string.Join(',',facadePoints)}");
@@ -37,7 +41,7 @@ namespace FacadeCalculator
             // Чтобы найти оптимальное решение, на мой взгляд нужно поиграть с левым отспупом в диапазоне (-длинаПрофиля, 0]
             float facadeLengthX = right.X - left.X;
 
-            int pointsCount = (int)(Math.Ceiling(facadeLengthX / profileSize.Width) + 1);
+            int pointsCount = (int)(Math.Ceiling(facadeLengthX / panelSize.Width) + 1);
 
             Console.WriteLine($"Facade width: {facadeLengthX}");
             Console.WriteLine($"pointCount = {pointsCount}");
@@ -47,7 +51,7 @@ namespace FacadeCalculator
             // заполняем точки разбиения
             for (int i = 0; i < pointsCount; ++i)
             {
-                float dot = facadePoints[0].X + i * profileSize.Width;
+                float dot = facadePoints[0].X + i * panelSize.Width;
 
                 partitionX[i] = new Point(dot, 0);
             }
@@ -146,10 +150,10 @@ namespace FacadeCalculator
                 {
                     float lengthToCut = 0f;
 
-                    if (length > profileSize.Height)
+                    if (length > panelSize.Height)
                     {
-                        lengthToCut = profileSize.Height;
-                        length -= profileSize.Height;
+                        lengthToCut = panelSize.Height;
+                        length -= panelSize.Height;
                     }
                     else
                     {
@@ -165,7 +169,7 @@ namespace FacadeCalculator
                     // иначе берём первую, то есть самую короткую из подходящих
                     if (panelsCandidates.Count() == 0)
                     {
-                        panelToCut = new Panel(profileSize);
+                        panelToCut = new Panel(panelSize);
                         panelsPull.Add(panelToCut);
                     }
                     else
@@ -307,6 +311,11 @@ namespace FacadeCalculator
             bool isNotDegenerateFigure = !(data.All(d => d.X == X) || data.All(d => d.Y == Y));
 
             return isNotDegenerateFigure;
+        }
+
+        public bool IsPanelValid(Size size)
+        { 
+            return size.Width > 100 && size.Height > 100;
         }
     }
 }

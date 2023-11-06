@@ -11,8 +11,6 @@ namespace FacadeСalculator.Controllers
     [Route("[controller]")]
     public class CalculatorController : ControllerBase
     {
-        private const int calculationTimeoutMilliSeconds = 3000;
-
         private readonly ILogger<CalculatorController> _logger;
 
         public CalculatorController(ILogger<CalculatorController> logger)
@@ -23,35 +21,29 @@ namespace FacadeСalculator.Controllers
         [HttpPost("cut")]
         public async Task<IActionResult> CutProfilesForFacade([FromBody] FacadeData data)
         {
-            _logger.LogInformation($"CutProfilesForFacade: Try to calculate profiles for facade = {string.Join<ApiModels.Point>(',', data.Profile)}");
+            _logger.LogInformation($"CutProfilesForFacade: Try to calculate profiles for facade = {string.Join<ApiModels.Point>(',', data.Profile)} with panelSize = {data.PanelSize}");
 
             var calculator = new Calculator();
 
-            var calcTask = calculator.GetPanelsToCoverProfile(data.Profile.Select(p => new Models.Point(p.X, p.Y)).ToArray(), defaultPanelSize);
             Panel[] result;
-
-            var task = Task.WhenAny(calcTask, Task.Delay(calculationTimeoutMilliSeconds));
 
             try
             {
-                if (await task == calcTask)
-                {
-                    result = calcTask.Result;
-                }
-                else
-                {
-                    _logger.LogCritical($"GetPanelsToCoverProfile: timeout");
-                    return StatusCode((int)HttpStatusCode.InternalServerError);
-                };
+                result = await calculator.GetPanelsToCoverProfile(data.Profile.Select(p => new Models.Point(p.X, p.Y)).ToArray(), data.PanelSize);
             }
             catch (InvalidFacadeException)
             {
-                if (task.Exception != null)
-                {
-                    _logger.LogError($"CutProfilesForFacade: Invalid Facade");
-                    return StatusCode((int)HttpStatusCode.UnprocessableEntity);
-                }
-
+                _logger.LogError($"CutProfilesForFacade: Invalid facade");
+                return StatusCode((int)HttpStatusCode.UnprocessableEntity);
+            }
+            catch (InvalidPanelException)
+            {
+                _logger.LogError($"CutProfilesForFacade: Invalid panel");
+                return StatusCode((int)HttpStatusCode.UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"CutProfilesForFacade: {ex.GetType}, {ex.Message}");
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
 
@@ -63,7 +55,5 @@ namespace FacadeСalculator.Controllers
                 Heights = panelHeights
             });
         }
-
-        private readonly Size defaultPanelSize = new Size(500f, 13500f);
     }
 }

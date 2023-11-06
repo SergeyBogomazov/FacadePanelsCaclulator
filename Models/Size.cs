@@ -42,5 +42,10 @@
             _height = height;
             _width = width;
         }
+
+        public override string ToString()
+        {
+            return $"({_width},{_height})";
+        }
     }
 }
