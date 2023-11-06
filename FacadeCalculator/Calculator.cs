@@ -150,31 +150,28 @@ namespace FacadeCalculator
                 {
                     float lengthToCut = 0f;
 
-                    if (length > panelSize.Height)
-                    {
-                        lengthToCut = panelSize.Height;
-                        length -= panelSize.Height;
-                    }
-                    else
-                    {
-                        lengthToCut = length;
-                        length = 0f;
-                    }
+                    lengthToCut = length > panelSize.Height ? panelSize.Height : length;
+                    length -= lengthToCut;
 
-                    // имем в пуле панель, от которой можно отрезать нужную длину
-                    var panelsCandidates = panelsPull.Where(p => p.CanCut(lengthToCut)).OrderBy(p => p.size.Height);
-                    Panel panelToCut;
+                    Panel panelToCut = null;
+
+                    // ищем подходящую панель
+                    foreach (var panel in panelsPull)
+                    {
+                        if (!panel.CanCut(lengthToCut)) { continue; }
+
+                        if (panelToCut == null) { panelToCut = panel; }
+                        else if (panel.size.Height < panelToCut.size.Height) {
+                            panelToCut = panel;
+                        }
+                    }
 
                     // если такой панели нет, то нужно в пулл добавить новую
                     // иначе берём первую, то есть самую короткую из подходящих
-                    if (panelsCandidates.Count() == 0)
+                    if (panelToCut == null)
                     {
                         panelToCut = new Panel(panelSize);
                         panelsPull.Add(panelToCut);
-                    }
-                    else
-                    {
-                        panelToCut = panelsCandidates.First();
                     }
 
                     // далее от выбранной панели отрежется нужная длина,
