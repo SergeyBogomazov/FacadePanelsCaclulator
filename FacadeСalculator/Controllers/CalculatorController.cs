@@ -41,6 +41,11 @@ namespace FacadeСalculator.Controllers
                 _logger.LogError($"CutProfilesForFacade: Invalid panel");
                 return StatusCode((int)HttpStatusCode.UnprocessableEntity);
             }
+            catch (NotConvexFigure)
+            {
+                _logger.LogError($"CutProfilesForFacade: Figure isn`t convex");
+                return StatusCode((int)HttpStatusCode.UnprocessableEntity);
+            }
             catch (Exception ex)
             {
                 _logger.LogError($"CutProfilesForFacade: {ex.GetType}, {ex.Message}");
