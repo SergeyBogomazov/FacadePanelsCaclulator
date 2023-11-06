@@ -27,6 +27,7 @@ namespace FacadeCalculator
             Console.WriteLine($"Count of segments = {lines.Length}");
             Console.WriteLine(string.Join<LineSegment>(' ', lines));
 
+            // находим крайние точки по оси Х
             var left = facadePoints[0];
             var right = facadePoints[0];
 
@@ -74,7 +75,7 @@ namespace FacadeCalculator
                 var p1 = partitionX[i];
                 var p2 = partitionX[i + 1];
 
-                // В отрезок разбиения могут входить как отдельные точки, так и пересекать сегменты
+                // В отрезок разбиения могут входить как отдельные точки, так и сегменты
                 List<Point> extremumPoints = new List<Point>();
                 List<LineSegment> segments = new List<LineSegment>();
 
@@ -103,7 +104,7 @@ namespace FacadeCalculator
                     }
                 }
 
-                // пройдёмся по собранным сегментам и добавим пересечения крайних точек отрезка разбиения с ними.
+                // пройдёмся по собранным сегментам и добавим точки пересечения сегмента и границ отрезка разбиения
                 // добавляется не одна точка, а коллекция, потому что экстремумов может быть два.
                 foreach (var segment in segments)
                 {
