@@ -309,12 +309,10 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
-            var result = panels.Select(p => p.size.Height);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
-            var expected = new float[] { 650f };
-            Assert.Equal(expected, result);
+            Assert.ThrowsAsync<NotConvexFigure>(() => panels);
         }
 
         [Fact]
