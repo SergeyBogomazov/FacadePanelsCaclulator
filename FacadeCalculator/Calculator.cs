@@ -193,6 +193,74 @@ namespace FacadeCalculator
         }
 
         public LineSegment[] GetSegmentsOfFigure(Point[] points)
+        { 
+            // список указателей на массив точек, которые в итоге будут формировать "круг"
+            // то есть для каждого указателя в массиве соседи указывают на точки, с которыми можно образовать сегмент
+            List<int> ordered = new List<int>() { 0 };
+
+            while (ordered.Count != points.Length)
+            {
+                var pointer = ordered[ordered.Count - 1];
+                bool found = false;
+
+                // try find neighbour for pointer
+                for (int i = 0; i < points.Length; ++i)
+                {
+                    if (ordered.Contains(i)) { continue; }
+
+                    // это счётчики - сколько точек лежит строго по левую или правую сторону от линии, проведённой через выбранные точки
+                    var left = 0;
+                    var right = 0;
+
+                    // выбранные точки для постройки линии
+                    var p1 = points[pointer];
+                    var p2 = points[i];
+
+                    for (int k = 0; k < points.Length; ++k)
+                    {
+                        // отбираем точки и смотрим с какой стороны от линии они лежат
+                        if (k == i || k == pointer) { continue; }
+
+                        var p3 = points[k];
+
+                        var side = PointSideByLine(p1, p2, p3);
+
+                        if (side < 0) { ++left; }
+                        if (side > 0) { ++right; }
+                    }
+
+                    // по определнию выпуклой фигуры, все точки должны лежать по одну сторону от линии,
+                    // если это не так, то данная точка нам не пара, идём к следующей
+                    if (left != 0 && right != 0)
+                    {
+                        continue;
+                    }
+
+                    found = true;
+                    ordered.Add(i);
+                    break;
+                }
+
+                if (!found)
+                {
+                    throw new NotConvexFigure();
+                }
+            }
+
+            LineSegment[] segments = new LineSegment[ordered.Count];
+
+            // add zero index to make pair with last element
+            ordered.Add(0);
+
+            for (int i = 0; i < ordered.Count - 1; ++i)
+            {
+                segments[i] = new LineSegment(points[ordered[i]], points[ordered[i+1]]);
+            }
+
+            return segments;
+        }
+
+        public LineSegment[] GetSegmentsOfFigure2(Point[] points)
         {
             //Словарь, в котором храниться индекс точки в массиве и множество других индексов, с которыми можно образовать отрезки в контексте выпуклой фигуры
             Dictionary<int , HashSet<int>> pairs = new Dictionary<int , HashSet<int>>();
@@ -208,7 +276,7 @@ namespace FacadeCalculator
                 // у каждой точки может быть только два соседа, поэтому если они есть то смысла её обрабатывать дальше нет
                 if (pairs[i].Count == 2) { continue; }
 
-                // пробегаемся по все другим точкам
+                // пробегаемся по все другим точкам в поисках пар
                 for (int j = 0; j < points.Length; ++j)
                 {
                     // если все соседи отобраны, то смысла идти дальше нет
@@ -250,6 +318,9 @@ namespace FacadeCalculator
                     pairs[i].Add(j);
                     pairs[j].Add(i);
                 }
+
+                // Если фигура выпуклая, то должны были найтись два валидных соседа
+                if (pairs[i].Count != 2) { throw new NotConvexFigure(); }
             }
 
             // Далее идут преобразования к типу результата
