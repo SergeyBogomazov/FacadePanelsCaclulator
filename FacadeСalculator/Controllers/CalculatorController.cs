@@ -25,7 +25,7 @@ namespace FacadeСalculator.Controllers
 
             var calculator = new Calculator();
 
-            Panel[] result;
+            IEnumerable<Panel> result;
 
             try
             {

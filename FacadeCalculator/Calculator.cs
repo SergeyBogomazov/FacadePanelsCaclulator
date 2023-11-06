@@ -5,9 +5,9 @@ namespace FacadeCalculator
 {
     public class Calculator : ICalculator
     {
-        public async Task<Panel[]> GetPanelsToCoverProfile(Point[] facadePoints, Size panelSize)
+        public async Task<IEnumerable<Panel>> GetPanelsToCoverProfile(Point[] facadePoints, Size panelSize)
         {
-            // Вообще обычно в таких местах у меня используется логгер + stringBuilder для записи действий и промежточных состояний для отладки,
+            // Обычно в таких местах у меня используется логгер + stringBuilder для записи действий и промежуточных состояний для отладки,
             // но в этот раз я не стал его проводить и сделал вывод в консоль
 
             if (!IsFacadeValid(facadePoints))
@@ -27,11 +27,15 @@ namespace FacadeCalculator
             Console.WriteLine($"Count of segments = {lines.Length}");
             Console.WriteLine(string.Join<LineSegment>(' ', lines));
 
-            // сортируем точки и получаем крайние точки по оси Х
-            SortPointsByX(facadePoints);
-
+            // находим крайние точки по оси Х
             var left = facadePoints[0];
-            var right = facadePoints[facadePoints.Length - 1];
+            var right = facadePoints[0];
+
+            foreach (var point in facadePoints)
+            {
+                if (point.X < left.X) { left = point; }
+                if (point.X > right.X) { right = point; }
+            }
 
             Console.WriteLine($"Left point = {left}");
             Console.WriteLine($"Right point = {right}");
@@ -51,12 +55,12 @@ namespace FacadeCalculator
             // заполняем точки разбиения
             for (int i = 0; i < pointsCount; ++i)
             {
-                float dot = facadePoints[0].X + i * panelSize.Width;
+                float dot = left.X + i * panelSize.Width;
 
                 partitionX[i] = new Point(dot, 0);
             }
 
-            partitionX[pointsCount - 1] = new Point(facadePoints[facadePoints.Length - 1].X, 0);
+            partitionX[pointsCount - 1] = new Point(right.X, 0);
 
             // panels содержить панели для установки
             // panelsPull содержит панели для нарезки, ниже будет подробно описано как работает пулл
@@ -71,7 +75,7 @@ namespace FacadeCalculator
                 var p1 = partitionX[i];
                 var p2 = partitionX[i + 1];
 
-                // В отрезок разбиения могут входить как отдельные точки, так и пересекать сегменты
+                // В отрезок разбиения могут входить как отдельные точки, так и сегменты
                 List<Point> extremumPoints = new List<Point>();
                 List<LineSegment> segments = new List<LineSegment>();
 
@@ -100,7 +104,7 @@ namespace FacadeCalculator
                     }
                 }
 
-                // пройдёмся по собранным сегментам и добавим пересечения крайних точек отрезка разбиения с ними.
+                // пройдёмся по собранным сегментам и добавим точки пересечения сегмента и границ отрезка разбиения
                 // добавляется не одна точка, а коллекция, потому что экстремумов может быть два.
                 foreach (var segment in segments)
                 {
@@ -139,7 +143,7 @@ namespace FacadeCalculator
                 AddPanelToResultWithLength(cut);
             }
 
-            return panels.ToArray();
+            return panels;
 
             // дабавляет панель нужной длины к результату, если длина больше панели, то будет добавлено несколько панелей.
             void AddPanelToResultWithLength(float length)
@@ -150,31 +154,28 @@ namespace FacadeCalculator
                 {
                     float lengthToCut = 0f;
 
-                    if (length > panelSize.Height)
-                    {
-                        lengthToCut = panelSize.Height;
-                        length -= panelSize.Height;
-                    }
-                    else
-                    {
-                        lengthToCut = length;
-                        length = 0f;
-                    }
+                    lengthToCut = length > panelSize.Height ? panelSize.Height : length;
+                    length -= lengthToCut;
 
-                    // имем в пуле панель, от которой можно отрезать нужную длину
-                    var panelsCandidates = panelsPull.Where(p => p.CanCut(lengthToCut)).OrderBy(p => p.size.Height);
-                    Panel panelToCut;
+                    Panel panelToCut = null;
+
+                    // ищем подходящую панель
+                    foreach (var panel in panelsPull)
+                    {
+                        if (!panel.CanCut(lengthToCut)) { continue; }
+
+                        if (panelToCut == null) { panelToCut = panel; }
+                        else if (panel.size.Height < panelToCut.size.Height) {
+                            panelToCut = panel;
+                        }
+                    }
 
                     // если такой панели нет, то нужно в пулл добавить новую
                     // иначе берём первую, то есть самую короткую из подходящих
-                    if (panelsCandidates.Count() == 0)
+                    if (panelToCut == null)
                     {
                         panelToCut = new Panel(panelSize);
                         panelsPull.Add(panelToCut);
-                    }
-                    else
-                    {
-                        panelToCut = panelsCandidates.First();
                     }
 
                     // далее от выбранной панели отрежется нужная длина,
@@ -185,11 +186,6 @@ namespace FacadeCalculator
                     panels.Add(panelToCut.Cut(lengthToCut));
                 }
             }
-        }
-
-        private void SortPointsByX(Point[] points)
-        {
-            Array.Sort(points, (p1, p2) => p1.X.CompareTo(p2.X));
         }
 
         public LineSegment[] GetSegmentsOfFigure(Point[] points)
