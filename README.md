@@ -8,7 +8,7 @@
 
 Api состоит из одного метода:
 
-### POST /Сalculator/cut
+### POST /Сalculator/facadePanels
 
 #### Входные параметры:
 

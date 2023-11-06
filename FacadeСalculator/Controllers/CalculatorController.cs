@@ -18,7 +18,7 @@ namespace FacadeСalculator.Controllers
             _logger = logger;
         }
 
-        [HttpPost("cut")]
+        [HttpPost("facadePanels")]
         public async Task<IActionResult> CutProfilesForFacade([FromBody] FacadeData data)
         {
             _logger.LogInformation($"CutProfilesForFacade: Try to calculate profiles for facade = {string.Join<ApiModels.Point>(',', data.Profile)} with panelSize = {data.PanelSize}");
