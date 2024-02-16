@@ -1,4 +1,5 @@
 using FacadeCalculator.Exceptions;
+using Models;
 using System.Net;
 
 namespace Api.Middleware
