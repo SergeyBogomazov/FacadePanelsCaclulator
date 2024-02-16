@@ -1,4 +1,6 @@
-﻿namespace Models
+﻿using System.Drawing;
+
+namespace Models
 {
     public class LineSegment
     {
@@ -23,52 +25,58 @@
             maxY = a.Y >= b.Y ? a.Y : b.Y;
         }
 
-        public bool ContainsPointByX(Point point)
+        public bool ContainsX(float x)
         {
-            return point.X >= minX && point.X <= maxX;
+            return x >= minX && x <= maxX;
         }
 
-        public List<Point> GetIntersectionExtremumsByX(Point point)
+        /// <summary>
+        /// Return extremum by Y points on line where point from args intersects line
+        /// </summary>
+        public IEnumerable<Point> GetIntersectionExtremumsByX(Point point)
         {
-            var result = new List<Point>();
-
-            if (!ContainsPointByX(point))
+            if (!ContainsX(point.X))
             {
-                return result;
+                return new Point[] { };
             }
 
-            if (minX == maxX)
+            if (minX == maxX) // Vertical line case
             {
-                result.Add(a);
-                result.Add(b);
+                return new List<Point>() { a, b };
             }
-            else if (minY == maxY)
+
+            if (minY == maxY) // Horizontal line case
             {
-                result.Add(new Point(point.X, minY));
+                return new List<Point>() { new Point(point.X, minY) };
+            }
+
+            return new List<Point>() { GetIntersectionBetweenXEdgesPoints(point.X) };
+        }
+
+        private Point GetIntersectionBetweenXEdgesPoints(float x)
+        {
+            if (!ContainsX(x)) {
+                throw new ArgumentException($"Wrong X = {x}. Its not between x edges");
+            }
+
+            float dx = (x - minX) / (maxX - minX);
+
+            var leftEnd = a.X <= b.X ? a : b;
+            var rightEnd = a.X >= b.X ? a : b;
+
+            float dy = 0;
+            float lenY = maxY - minY;
+
+            if (leftEnd.Y <= rightEnd.Y)
+            {
+                dy = minY + lenY * dx;
             }
             else
             {
-                float dx = (point.X - minX) / (maxX - minX);
-
-                var leftEnd = a.X <= b.X ? a : b;
-                var rightEnd = a.X >= b.X ? a : b;
-
-                float dy = 0;
-                float lenY = maxY - minY;
-
-                if (leftEnd.Y <= rightEnd.Y)
-                {
-                    dy = minY + lenY * dx;
-                }
-                else
-                {
-                    dy = maxY - lenY * dx;
-                }
-
-                result.Add(new Point(point.X, dy));
+                dy = maxY - lenY * dx;
             }
 
-            return result;
+            return new Point(x, dy);
         }
 
         public override string ToString()
