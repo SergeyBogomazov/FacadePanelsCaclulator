@@ -33,6 +33,8 @@
             }
         }
 
+        public bool IsDenerate => _height == 0 || _width == 0;
+
         public Size(float width, float height) {
             if (height <= 0 || width <= 0)
             {

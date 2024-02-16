@@ -10,7 +10,7 @@ namespace Tests
         private readonly Size defaultPanelSize = new Size(500f, 13500f);
 
         [Fact]
-        public async Task CheckingWrongFacade1()
+        public void CheckingWrongFacade1()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -19,15 +19,12 @@ namespace Tests
             var facade = new Point[] {
             };
 
-            //Act
-            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
-
             //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            Assert.Throws<InvalidFacadeException>(() => caclulator.GetPanelsToCoverProfile(facade, profileSize));
         }
 
         [Fact]
-        public async Task CheckingWrongFacade2()
+        public void CheckingWrongFacade2()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -38,15 +35,11 @@ namespace Tests
                 new Point(99, 500),
             };
 
-            //Act
-            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
-
-            //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            Assert.Throws<InvalidFacadeException>(() => caclulator.GetPanelsToCoverProfile(facade, profileSize));
         }
 
         [Fact]
-        public async Task CheckingWrongFacade3()
+        public void CheckingWrongFacade3()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -59,15 +52,11 @@ namespace Tests
                 new Point(0, 999),
             };
 
-            //Act
-            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
-
-            //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            Assert.Throws<InvalidFacadeException>(() => caclulator.GetPanelsToCoverProfile(facade, profileSize));
         }
 
         [Fact]
-        public async Task CheckingWrongFacade4()
+        public void CheckingWrongFacade4()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -80,15 +69,11 @@ namespace Tests
                 new Point(434, 100),
             };
 
-            //Act
-            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
-
-            //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            Assert.Throws<InvalidFacadeException>(() => caclulator.GetPanelsToCoverProfile(facade, profileSize));
         }
 
         [Fact]
-        public async Task CheckingWrongFacade5()
+        public void CheckingWrongFacade5()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -101,15 +86,11 @@ namespace Tests
                 new Point(434, 100.12f),
             };
 
-            //Act
-            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
-
-            //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            Assert.Throws<InvalidFacadeException>(() => caclulator.GetPanelsToCoverProfile(facade, profileSize));
         }
 
         [Fact]
-        public async Task CalculateQuadFacade()
+        public void CalculateQuadFacade()
         { 
             //Arrange
             var caclulator = new Calculator();
@@ -123,7 +104,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -132,7 +113,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateQuadFacadeLittleOverflow()
+        public void CalculateQuadFacadeLittleOverflow()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -146,7 +127,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -154,7 +135,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateFacadeQuadAndTriangle()
+        public void CalculateFacadeQuadAndTriangle()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -169,7 +150,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -178,7 +159,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateFacadeQuadAndTriangle2()
+        public void CalculateFacadeQuadAndTriangle2()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -193,7 +174,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -202,7 +183,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateHeightOverflowFacade()
+        public void CalculateHeightOverflowFacade()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -216,7 +197,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -225,7 +206,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateHeightOverflowFacade1()
+        public void CalculateHeightOverflowFacade1()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -239,7 +220,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -248,7 +229,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateFacadeTriangle()
+        public void CalculateFacadeTriangle()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -261,7 +242,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -270,7 +251,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateFacadeRomb()
+        public void CalculateFacadeRomb()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -284,7 +265,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -293,7 +274,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateFacadeDifficult1()
+        public void CalculateFacadeDifficult1()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -308,15 +289,12 @@ namespace Tests
                 new Point(75, 550),
             };
 
-            //Act
-            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
-
             //Assert
-            Assert.ThrowsAsync<NotConvexFigure>(() => panels);
+            Assert.Throws<NotConvexFigure>(() => caclulator.GetPanelsToCoverProfile(facade, profileSize));
         }
 
         [Fact]
-        public async Task CalculateFacadeDifficult2()
+        public void CalculateFacadeDifficult2()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -331,7 +309,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
             var result = panels.Select(p => p.size.Height);
 
             //Assert
@@ -340,7 +318,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CalculateDifficultFacade()
+        public void CalculateDifficultFacade()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -355,7 +333,7 @@ namespace Tests
             };
 
             //Act
-            var panels = await caclulator.GetPanelsToCoverProfile(facade, profileSize);
+            var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
             Assert.True(panels.Count() == 25 && panels.Max(p => p.size.Height) < 9800f);

@@ -1,4 +1,6 @@
-﻿namespace Models
+﻿using System.Drawing;
+
+namespace Models
 {
     public class LineSegment
     {
@@ -23,52 +25,79 @@
             maxY = a.Y >= b.Y ? a.Y : b.Y;
         }
 
-        public bool ContainsPointByX(Point point)
+        public bool IsVertical => minX == maxX;
+        public bool IsHorizontal => minY == maxY;
+
+        public bool ContainsX(float x)
         {
-            return point.X >= minX && point.X <= maxX;
+            return x >= minX && x <= maxX;
         }
 
-        public List<Point> GetIntersectionExtremumsByX(Point point)
+        /// <summary>
+        /// Говорит с какой стороны относительно линии расположена точка.
+        /// Если результат равен нулю, то точка находиться на линии.
+        /// Иначе выше = 1 или ниже = -1.
+        /// </summary>
+        /// <param name="a">First point of line</param>
+        /// <param name="b">Second point of line</param>
+        /// <param name="c">Point</param>
+        public int PointSideByLine(Point c)
         {
-            var result = new List<Point>();
+            var d = (c.X - a.X) * (b.Y - a.Y) - (c.Y - a.Y) * (b.X - a.X);
 
-            if (!ContainsPointByX(point))
+            if (d > 0) { return 1; }
+            if (d < 0) { return -1; }
+            return 0;
+        }
+
+        /// <summary>
+        /// For argument x finds points on line segment which intersects by vertical line with X = x.
+        /// Return only extremum by Y points.
+        /// </summary>
+        public IEnumerable<Point> GetIntersectionExtremumsByX(float x)
+        {
+            if (!ContainsX(x))
             {
-                return result;
+                return new Point[0];
             }
 
-            if (minX == maxX)
+            if (IsVertical) // Vertical line case
             {
-                result.Add(a);
-                result.Add(b);
+                return new Point[2] { a, b };
             }
-            else if (minY == maxY)
+
+            if (IsHorizontal) // Horizontal line case
             {
-                result.Add(new Point(point.X, minY));
+                return new Point[1] { new Point(x, minY) };
+            }
+
+            return new Point[1] { GetIntersectionBetweenXEdgesPoints(x) };
+        }
+
+        private Point GetIntersectionBetweenXEdgesPoints(float x)
+        {
+            if (!ContainsX(x)) {
+                throw new ArgumentException($"Wrong X = {x}. Its not between x edges");
+            }
+
+            float dx = (x - minX) / (maxX - minX);
+
+            var leftEnd = a.X <= b.X ? a : b;
+            var rightEnd = a.X >= b.X ? a : b;
+
+            float dy = 0;
+            float lenY = maxY - minY;
+
+            if (leftEnd.Y <= rightEnd.Y)
+            {
+                dy = minY + lenY * dx;
             }
             else
             {
-                float dx = (point.X - minX) / (maxX - minX);
-
-                var leftEnd = a.X <= b.X ? a : b;
-                var rightEnd = a.X >= b.X ? a : b;
-
-                float dy = 0;
-                float lenY = maxY - minY;
-
-                if (leftEnd.Y <= rightEnd.Y)
-                {
-                    dy = minY + lenY * dx;
-                }
-                else
-                {
-                    dy = maxY - lenY * dx;
-                }
-
-                result.Add(new Point(point.X, dy));
+                dy = maxY - lenY * dx;
             }
 
-            return result;
+            return new Point(x, dy);
         }
 
         public override string ToString()

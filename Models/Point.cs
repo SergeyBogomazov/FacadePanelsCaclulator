@@ -1,4 +1,6 @@
-﻿namespace Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Models
 {
     public struct Point : IEquatable<Point>
     {
@@ -14,6 +16,11 @@
         public bool Equals(Point other)
         {
             return other.X == X && other.Y == Y;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj != null && obj is Point && Equals((Point)obj);
         }
 
         public override string ToString()

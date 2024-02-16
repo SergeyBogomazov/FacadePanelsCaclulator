@@ -1,3 +1,6 @@
+using Api.Middleware;
+using FacadeCalculator;
+
 namespace FacadeСalculator
 {
     public class Program
@@ -10,13 +13,17 @@ namespace FacadeСalculator
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
-            var app = builder.Build();
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            builder.Services.AddSingleton<ICalculator, Calculator>();
+
+            var app = builder.Build();
+            
+
+            app.UseRequestLoggerMiddleware();
+            app.UseCustomExceptionHandler();
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.MapControllers();
 
