@@ -23,7 +23,7 @@ namespace Tests
             var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            await Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace Tests
             var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            await Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Tests
             var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+           await Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Tests
             var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            await Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace Tests
             var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
-            Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
+            await Assert.ThrowsAsync<InvalidFacadeException>(() => panels);
         }
 
         [Fact]
@@ -312,7 +312,7 @@ namespace Tests
             var panels = caclulator.GetPanelsToCoverProfile(facade, profileSize);
 
             //Assert
-            Assert.ThrowsAsync<NotConvexFigure>(() => panels);
+            await Assert.ThrowsAsync<NotConvexFigure>(() => panels);
         }
 
         [Fact]
