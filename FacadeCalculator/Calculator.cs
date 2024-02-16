@@ -42,51 +42,53 @@ namespace FacadeCalculator
                 var p1 = partitionX[i];
                 var p2 = partitionX[i + 1];
 
-                // В отрезок разбиения могут входить как отдельные точки, так и сегменты
-                List<Point> extremumPoints = new List<Point>();
-                List<LineSegment> segments = new List<LineSegment>();
-
-                // соберём точки фасада, которые входят в отрезок разбиения
-                foreach (Point p in figure.points)
-                {
-                    if (p.X >= p1 && p.X <= p2)
-                    {
-                        extremumPoints.Add(p);
-                    }
-                }
-
-                // соберём сегменты, которые сможем пересеч
-                foreach (LineSegment segment in figure.segments)
-                {
-                    if (segment.ContainsX(p1) || segment.ContainsX(p2))
-                    {
-                        segments.Add(segment);
-                    }
-                }
-
-                // пройдёмся по собранным сегментам и добавим точки пересечения сегмента и границ отрезка разбиения
-                // добавляется не одна точка, а коллекция, потому что экстремумов может быть два.
-                foreach (var segment in segments)
-                {
-                    extremumPoints.AddRange(segment.GetIntersectionExtremumsByX(p1));
-                    extremumPoints.AddRange(segment.GetIntersectionExtremumsByX(p2));
-                }
-
-                // отбираем экстремумы из собранных точек
-                float minY = Single.MaxValue;
-                float maxY = Single.MinValue;
-
-                foreach (var point in extremumPoints)
-                {
-                    if (minY > point.Y) { minY = point.Y; }
-                    if (maxY < point.Y) { maxY = point.Y; }
-                }
-
-                // добавляем полученную длину панели
-                cutLengths.Push(maxY - minY);
+                // добавляем полученную длину панели для этого разбиения
+                cutLengths.Push(GetLength(figure, p1, p2));
             }
 
             return cutLengths;
+        }
+
+        private float GetLength(ConvexFigure figure, float left, float right)
+        {
+            // отбираем экстремумы из собранных точек
+            float minY = Single.MaxValue;
+            float maxY = Single.MinValue;
+
+            // соберём точки фасада, которые входят в отрезок разбиения
+            foreach (Point p in figure.points)
+            {
+                if (p.X >= left && p.X <= right)
+                {
+                    UpdateResult(p);
+                }
+            }
+
+            // соберём сегменты, которые сможем пересеч
+            foreach (LineSegment segment in figure.segments)
+            {
+                if (segment.ContainsX(left) || segment.ContainsX(right))
+                {
+                    UpdateResultBySegment(segment);
+                }
+            }
+
+            return maxY - minY;
+
+            void UpdateResultBySegment(LineSegment segment)
+            {
+                var a = segment.GetIntersectionExtremumsByX(left);
+                var b = segment.GetIntersectionExtremumsByX(right);
+
+                foreach (var c in a) { UpdateResult(c); }
+                foreach (var c in b) { UpdateResult(c); }
+            }
+
+            void UpdateResult(Point p)
+            {
+                if (p.Y < minY) { minY = p.Y; };
+                if (p.Y > maxY) { maxY = p.Y; }
+            }
         }
 
         private IEnumerable<Panel> GetPanels(Stack<float> lengths, Size panelSize)
@@ -112,22 +114,7 @@ namespace FacadeCalculator
 
                 if (length == 0) { return; }
 
-                Panel panelToCut = null;
-
-                foreach (var panel in panelsPull)
-                {
-                    if (panel.CanCut(length))
-                    {
-                        if (panelToCut == null)
-                        {
-                            panelToCut = panel;
-                        }
-                        else if (panelToCut.size.Height > panel.size.Height)
-                        {
-                            panelToCut = panel;
-                        }
-                    }
-                }
+                Panel panelToCut = GetPanelFromPull(length);
 
                 if (panelToCut == null)
                 {
@@ -136,6 +123,28 @@ namespace FacadeCalculator
                 }
 
                 panels.Add(panelToCut.Cut(length));
+            }
+
+            Panel GetPanelFromPull(float len)
+            {
+                Panel res = null;
+
+                foreach (var panel in panelsPull)
+                {
+                    if (panel.CanCut(len))
+                    {
+                        if (res == null)
+                        {
+                            res = panel;
+                        }
+                        else if (res.size.Height > panel.size.Height)
+                        {
+                            res = panel;
+                        }
+                    }
+                }
+
+                return res;
             }
         }
 
