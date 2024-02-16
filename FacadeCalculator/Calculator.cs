@@ -5,21 +5,16 @@ namespace FacadeCalculator
 {
     public class Calculator : ICalculator
     {
-        public async Task<IEnumerable<Panel>> GetPanelsToCoverProfile(Point[] facadePoints, Size panelSize)
+        public IEnumerable<Panel> GetPanelsToCoverProfile(Point[] facadePoints, Size panelSize)
         {
-            // Обычно в таких местах у меня используется логгер + stringBuilder для записи действий и промежуточных состояний для отладки,
-            // но в этот раз я не стал его проводить и сделал вывод в консоль
-
-            if (!IsFacadeValid(facadePoints))
+            if (IsFacadeDenerate(facadePoints))
             {
                 throw new InvalidFacadeException();
             }
-            if (!IsPanelValid(panelSize))
+            if (panelSize.IsDenerate)
             { 
                 throw new InvalidPanelException();
             }
-
-            Console.WriteLine($"Start calculation {string.Join(',',facadePoints)}");
 
             // получаем сегменты фигуры
             LineSegment[] lines = GetSegmentsOfFigure(facadePoints);
@@ -189,10 +184,14 @@ namespace FacadeCalculator
         }
 
         public LineSegment[] GetSegmentsOfFigure(Point[] points)
-        { 
+        {
             // список указателей на массив точек, которые в итоге будут формировать "круг"
             // то есть для каждого указателя в массиве соседи указывают на точки, с которыми можно образовать сегмент
             List<int> ordered = new List<int>() { 0 };
+
+            // здесь отмечаем точки, которые уже заняты
+            bool[] pointsTaken = new bool[points.Length];
+            pointsTaken[0] = true;
 
             while (ordered.Count != points.Length)
             {
@@ -202,7 +201,7 @@ namespace FacadeCalculator
                 // try find neighbour for pointer
                 for (int i = 0; i < points.Length; ++i)
                 {
-                    if (ordered.Contains(i)) { continue; }
+                    if (pointsTaken[i]) { continue; }
 
                     // это счётчики - сколько точек лежит строго по левую или правую сторону от линии, проведённой через выбранные точки
                     var left = 0;
@@ -212,6 +211,8 @@ namespace FacadeCalculator
                     var p1 = points[pointer];
                     var p2 = points[i];
 
+                    var seg = new LineSegment(p1, p2);
+
                     for (int k = 0; k < points.Length; ++k)
                     {
                         // отбираем точки и смотрим с какой стороны от линии они лежат
@@ -219,7 +220,9 @@ namespace FacadeCalculator
 
                         var p3 = points[k];
 
-                        var side = PointSideByLine(p1, p2, p3);
+                        
+
+                        var side = seg.PointSideByLine(p3);
 
                         if (side < 0) { ++left; }
                         if (side > 0) { ++right; }
@@ -232,6 +235,7 @@ namespace FacadeCalculator
                         continue;
                     }
 
+                    pointsTaken[i] = true;
                     found = true;
                     ordered.Add(i);
                     break;
@@ -250,139 +254,20 @@ namespace FacadeCalculator
 
             for (int i = 0; i < ordered.Count - 1; ++i)
             {
-                segments[i] = new LineSegment(points[ordered[i]], points[ordered[i+1]]);
+                segments[i] = new LineSegment(points[ordered[i]], points[ordered[i + 1]]);
             }
 
             return segments;
         }
 
-        public LineSegment[] GetSegmentsOfFigure2(Point[] points)
+        public bool IsFacadeDenerate(Point[] data)
         {
-            //Словарь, в котором храниться индекс точки в массиве и множество других индексов, с которыми можно образовать отрезки в контексте выпуклой фигуры
-            Dictionary<int , HashSet<int>> pairs = new Dictionary<int , HashSet<int>>();
-
-            for (int i = 0; i < points.Length; ++i)
-            { 
-                pairs.Add(i, new HashSet<int>());
-            }
-
-            // пробегаемся по всем точкам
-            for (int i = 0; i < points.Length; ++i)
-            {
-                // у каждой точки может быть только два соседа, поэтому если они есть то смысла её обрабатывать дальше нет
-                if (pairs[i].Count == 2) { continue; }
-
-                // пробегаемся по все другим точкам в поисках пар
-                for (int j = 0; j < points.Length; ++j)
-                {
-                    // если все соседи отобраны, то смысла идти дальше нет
-                    if (pairs[i].Count == 2) { break; }
-
-                    // отбрасываем точки, которые точно не подходят
-                    if (pairs[j].Count == 2) { continue; }
-                    if (i == j) { continue; }
-
-                    // это счётчики - сколько точек лежит строго по левую или правую сторону от линии, проведённой через выбранные точки
-                    var left = 0;
-                    var right = 0;
-
-                    // выбранные точки для постройки линии
-                    var p1 = points[i];
-                    var p2 = points[j];
-
-                    for (int k = 0; k < points.Length; ++k)
-                    {
-                        // отбираем точки и смотрим с какой стороны от линии они лежат
-                        if (k == i || k == j) { continue; }
-
-                        var p3 = points[k];
-
-                        var side = PointSideByLine(p1, p2, p3);
-
-                        if (side < 0) { ++left; }
-                        if (side > 0) { ++right; }
-                    }
-
-                    // по определнию выпуклой фигуры, все точки должны лежать по одну сторону от линии,
-                    // если это не так, то данная точка нам не пара, идём к следующей
-                    if (left != 0 && right != 0)
-                    {
-                        continue;
-                    }
-
-                    //добавляем точки друг другу в пары
-                    pairs[i].Add(j);
-                    pairs[j].Add(i);
-                }
-
-                // Если фигура выпуклая, то должны были найтись два валидных соседа
-                if (pairs[i].Count != 2) { throw new NotConvexFigure(); }
-            }
-
-            // Далее идут преобразования к типу результата
-            // TODO Need refactoring
-
-            List<HashSet<int>> prelines= new List<HashSet<int>> ();
-
-            foreach (var pair in pairs)
-            {
-                foreach (var neib in pair.Value)
-                {
-                    if (prelines.Any(line => line.Contains(pair.Key) && line.Contains(neib)))
-                    {
-                        continue;
-                    }
-
-                    prelines.Add(new HashSet<int> { pair.Key, neib});
-                }
-            }
-
-            LineSegment[] lines = new LineSegment[prelines.Count];
-
-            for (int i = 0; i < lines.Length; ++i)
-            {
-                var p = prelines[i].ToArray();
-
-                lines[i] = new LineSegment(points[p[0]], points[p[1]]);
-            }
-
-            return lines;
-        }
-
-        /// <summary>
-        /// Говорит с какой стороны относительно линии расположена точка.
-        /// Если результат равен нулю, то точка находиться на линии.
-        /// Иначе выше = 0 или ниже = 1.
-        /// </summary>
-        /// <param name="a">First point of line</param>
-        /// <param name="b">Second point of line</param>
-        /// <param name="c">Point</param>
-        public int PointSideByLine(Point a, Point b, Point c)
-        {
-            var d = (c.X - a.X) * (b.Y - a.Y) - (c.Y - a.Y) * (b.X - a.X);
-
-            if (d > 0) { return 1; }
-            if (d < 0) { return -1; }
-            return 0;
-        }
-
-        public bool IsFacadeValid(Point[] data)
-        {
-            bool isDotsEnough = data.Length > 2;
-
-            if (!isDotsEnough) { return false; }
+            if (data.Length < 3) { return true; }
 
             var X = data[0].X;
             var Y = data[0].Y;
 
-            bool isNotDegenerateFigure = !(data.All(d => d.X == X) || data.All(d => d.Y == Y));
-
-            return isNotDegenerateFigure;
-        }
-
-        public bool IsPanelValid(Size size)
-        { 
-            return size.Width > 100 && size.Height > 100;
+            return data.All(d => d.X == X) || data.All(d => d.Y == Y);
         }
     }
 }

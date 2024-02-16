@@ -25,9 +25,29 @@ namespace Models
             maxY = a.Y >= b.Y ? a.Y : b.Y;
         }
 
+        public bool IsVertical => minX == maxX;
+        public bool IsHorizontal => minY == maxY;
+
         public bool ContainsX(float x)
         {
             return x >= minX && x <= maxX;
+        }
+
+        /// <summary>
+        /// Говорит с какой стороны относительно линии расположена точка.
+        /// Если результат равен нулю, то точка находиться на линии.
+        /// Иначе выше = 1 или ниже = -1.
+        /// </summary>
+        /// <param name="a">First point of line</param>
+        /// <param name="b">Second point of line</param>
+        /// <param name="c">Point</param>
+        public int PointSideByLine(Point c)
+        {
+            var d = (c.X - a.X) * (b.Y - a.Y) - (c.Y - a.Y) * (b.X - a.X);
+
+            if (d > 0) { return 1; }
+            if (d < 0) { return -1; }
+            return 0;
         }
 
         /// <summary>
@@ -38,20 +58,20 @@ namespace Models
         {
             if (!ContainsX(x))
             {
-                return new Point[] { };
+                return new Point[0];
             }
 
-            if (minX == maxX) // Vertical line case
+            if (IsVertical) // Vertical line case
             {
-                return new List<Point>() { a, b };
+                return new Point[2] { a, b };
             }
 
-            if (minY == maxY) // Horizontal line case
+            if (IsHorizontal) // Horizontal line case
             {
-                return new List<Point>() { new Point(x, minY) };
+                return new Point[1] { new Point(x, minY) };
             }
 
-            return new List<Point>() { GetIntersectionBetweenXEdgesPoints(x) };
+            return new Point[1] { GetIntersectionBetweenXEdgesPoints(x) };
         }
 
         private Point GetIntersectionBetweenXEdgesPoints(float x)

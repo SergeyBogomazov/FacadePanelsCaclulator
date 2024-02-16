@@ -23,7 +23,7 @@ namespace FacadeСalculator.Controllers
         {
             _logger.LogInformation($"CutProfilesForFacade: Try to calculate profiles for facade = {string.Join<ApiModels.Point>(',', data.Profile)} with panelSize = {data.PanelSize}");
 
-            var result = await calculator.GetPanelsToCoverProfile(data.Profile.Select(p => new Models.Point(p.X, p.Y)).ToArray(), data.PanelSize);
+            var result = calculator.GetPanelsToCoverProfile(data.Profile.Select(p => new Models.Point(p.X, p.Y)).ToArray(), data.PanelSize);
 
             return Ok(new CutProfilesResponse(result.Select(p => p.size.Height)));
         }
