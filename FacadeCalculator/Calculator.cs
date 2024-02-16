@@ -108,8 +108,8 @@ namespace FacadeCalculator
                 // добавляется не одна точка, а коллекция, потому что экстремумов может быть два.
                 foreach (var segment in segments)
                 {
-                    extremumPoints.AddRange(segment.GetIntersectionExtremumsByX(p1));
-                    extremumPoints.AddRange(segment.GetIntersectionExtremumsByX(p2));
+                    extremumPoints.AddRange(segment.GetIntersectionExtremumsByX(p1.X));
+                    extremumPoints.AddRange(segment.GetIntersectionExtremumsByX(p2.X));
                 }
 
                 // отбираем экстремумы из собранных точек

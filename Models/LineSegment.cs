@@ -31,11 +31,12 @@ namespace Models
         }
 
         /// <summary>
-        /// Return extremum by Y points on line where point from args intersects line
+        /// For argument x finds points on line segment which intersects by vertical line with X = x.
+        /// Return only extremum by Y points.
         /// </summary>
-        public IEnumerable<Point> GetIntersectionExtremumsByX(Point point)
+        public IEnumerable<Point> GetIntersectionExtremumsByX(float x)
         {
-            if (!ContainsX(point.X))
+            if (!ContainsX(x))
             {
                 return new Point[] { };
             }
@@ -47,10 +48,10 @@ namespace Models
 
             if (minY == maxY) // Horizontal line case
             {
-                return new List<Point>() { new Point(point.X, minY) };
+                return new List<Point>() { new Point(x, minY) };
             }
 
-            return new List<Point>() { GetIntersectionBetweenXEdgesPoints(point.X) };
+            return new List<Point>() { GetIntersectionBetweenXEdgesPoints(x) };
         }
 
         private Point GetIntersectionBetweenXEdgesPoints(float x)
