@@ -1,7 +1,4 @@
 ﻿namespace ApiModels
 {
-    public class CutProfilesResponse
-    {
-        public IEnumerable<float> Heights { get; set; }
-    }
+    public record CutProfilesResponse(IEnumerable<float> Heights);
 }

@@ -2,7 +2,7 @@
 
 namespace FacadeCalculator
 {
-    internal interface ICalculator
+    public interface ICalculator
     {
         public Task<IEnumerable<Panel>> GetPanelsToCoverProfile(Point[] facadePoints, Size profileSize);
     }
