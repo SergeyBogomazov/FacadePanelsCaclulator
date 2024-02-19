@@ -10,7 +10,7 @@ namespace Tests
         private readonly Size defaultPanelSize = new Size(500f, 13500f);
 
         [Fact]
-        public void CheckingWrongFacade1()
+        public void Calculate_With_Empty_Facade_Array_ThrowException()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -24,7 +24,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CheckingWrongFacade2()
+        public void Calculate_Facade_Array_With_Two_Points_ThrowException()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -39,7 +39,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CheckingWrongFacade3()
+        public void Calculate_Degenerate_Facade_Where_AllPointsHasZeroX_ThrowException()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -56,7 +56,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CheckingWrongFacade4()
+        public void Calculate_Degenerate_Facade_Where_AllPointsHasSameY_ThrowException()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -73,7 +73,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CheckingWrongFacade5()
+        public void Calculate_Degenerate_Facade_Where_AllPointsHasSameY_ThrowException2()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -90,7 +90,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateQuadFacade()
+        public void CalculateQuadFacade_ReturnsOnePanel()
         { 
             //Arrange
             var caclulator = new Calculator();
@@ -113,7 +113,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateQuadFacadeLittleOverflow()
+        public void CalculateQuadFacadeWithLittleOverflowByY_ReturnsTwoPanel()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -135,7 +135,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateFacadeQuadAndTriangle()
+        public void CalculateFacadeWithQuadAndTrianglePartsWithSameHeightAndWight_ReturnsTwoEqualsPanels()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -159,7 +159,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateFacadeQuadAndTriangle2()
+        public void CalculateFacadeWithQuadAndTrianglePartsWithSameHeightAndWight_ReturnsTwoEqualsPanels2()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -183,7 +183,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateHeightOverflowFacade()
+        public void CalculateFacadeWithOverflowByY_ReturnsThreePanels()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -206,7 +206,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateHeightOverflowFacade1()
+        public void CalculateFacadeWithOverflowByY_ReturnsThreePanels2()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -229,7 +229,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateFacadeTriangle()
+        public void CalculateTriangleFacade_ReturnsOnePanel()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -251,7 +251,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateFacadeRomb()
+        public void CalculateFacadeRomb_ReturnsTwoPanels()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -274,7 +274,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateFacadeDifficult1()
+        public void CalculateNotConvexFacade_ThrowException()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -294,7 +294,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateFacadeDifficult2()
+        public void CalculateComplexFacade_ReturnsOnePanel()
         {
             //Arrange
             var caclulator = new Calculator();
@@ -318,7 +318,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CalculateDifficultFacade()
+        public void CalculateComplexFacade_Returns25Panels()
         {
             //Arrange
             var caclulator = new Calculator();
